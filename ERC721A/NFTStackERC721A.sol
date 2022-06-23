@@ -177,21 +177,18 @@ contract NFTStackERC721A is ERC721A, Ownable {
 
   function reserveNft() public onlyAuthorized {
     require(reservedCount <= maxReserveCount, "Max Reserves taken already!");
-    uint256 supply = totalSupply();
-    uint256 i;
+    require(totalSupply() + reserveAtATime <= maximumMintSupply, "Total supply exceeded.");
+    require(totalSupply() <= maximumMintSupply, "Total supply spent.");
 
-    for (i = 0; i < reserveAtATime; i++) {
-      emit AssetMinted(supply + i, msg.sender);
-      _safeMint(msg.sender, supply + i);
-      reservedCount++;
-    }
+    reservedCount += reserveAtATime;
+    _safeMint(msg.sender, reserveAtATime);
   }
 
   function reserveToCustomWallet(address _walletAddress, uint256 _count) public onlyAuthorized {
-    for (uint256 i = 0; i < _count; i++) {
-      emit AssetMinted(totalSupply(), _walletAddress);
-      _safeMint(_walletAddress, totalSupply());
-    }
+    require(totalSupply() + _count <= maximumMintSupply, "Total supply exceeded.");
+    require(totalSupply() <= maximumMintSupply, "Total supply spent.");
+
+    _safeMint(_walletAddress, _count);
   }
 
   function mint(address _to, uint256 _count) public payable saleIsOpen callerIsUser {
