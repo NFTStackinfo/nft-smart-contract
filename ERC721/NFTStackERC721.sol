@@ -159,7 +159,7 @@ contract NFTStackERC721 is ERC721Enumerable, Ownable {
     uint256 supply = totalSupply();
     uint256 i;
 
-    for (i = 0; i < reserveAtATime; i++) {
+    for (i = 1; i < reserveAtATime; i++) {
       emit AssetMinted(supply + i, msg.sender);
       _safeMint(msg.sender, supply + i);
       reservedCount++;
@@ -168,11 +168,10 @@ contract NFTStackERC721 is ERC721Enumerable, Ownable {
 
   function reserveToCustomWallet(address _walletAddress, uint256 _count) public onlyAuthorized {
     require(reservedCount <= maxReserveCount, "Max Reserves taken already!");
-
     uint256 supply = totalSupply();
     uint256 i;
 
-    for (i = 0; i < _count; i++) {
+    for (i = 1; i < _count; i++) {
       emit AssetMinted(supply + i, _walletAddress);
       _safeMint(_walletAddress, totalSupply());
     }
@@ -197,9 +196,12 @@ contract NFTStackERC721 is ERC721Enumerable, Ownable {
 
     require(msg.value >= mintPrice * _count, "Insuffient ETH amount sent.");
 
-    for (uint256 i = 0; i < _count; i++) {
-      emit AssetMinted(totalSupply(), _to);
-      _mint(_to, totalSupply());
+    uint256 supply = totalSupply();
+    uint256 i;
+
+    for (i = 1; i <= _count; i++) {
+      emit AssetMinted(supply + i, msg.sender);
+      _safeMint(msg.sender, supply + i);
     }
   }
 
@@ -211,11 +213,14 @@ contract NFTStackERC721 is ERC721Enumerable, Ownable {
     require(_allowListClaimed[msg.sender] + _count <= allowListMaxMint, 'Purchase exceeds max allowed');
     require(msg.value >= preSaleMintPrice * _count, 'Insuffient ETH amount sent.');
     require(!isClosedMintForever, 'Mint Closed Forever');
+    
+    uint256 supply = totalSupply();
+    uint256 i;
 
-    for (uint256 i = 0; i < _count; i++) {
+    for (i = 1; i <= _count; i++) {
       _allowListClaimed[msg.sender] += 1;
-      emit AssetMinted(totalSupply(), msg.sender);
-      _mint(msg.sender, totalSupply());
+      emit AssetMinted(supply + i, msg.sender);
+      _safeMint(msg.sender, supply + i);
     }
   }
 
